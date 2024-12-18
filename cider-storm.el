@@ -1,4 +1,4 @@
-;;; cider-storm-stepper.el --- Cider front-end for the FlowStorm debugger  -*- lexical-binding: t -*-
+;;; cider-storm.el --- Cider front-end for the FlowStorm debugger  -*- lexical-binding: t -*-
 
 ;; Copyright (c) 2023 Juan Monetta <jpmonettas@gmail.com>
 
@@ -6,7 +6,7 @@
 ;; URL: https://github.com/jpmonettas/cider-storm
 ;; Keywords: convenience, tools, debugger, clojure, cider
 ;; Version: 0.1
-;; Package-Requires: ((emacs "26") (cider "1.6.0"))
+;; Package-Requires: ((emacs "26") (cider "1.14.0"))
 ;; SPDX-License-Identifier: GPL-3.0-or-later
 
 ;; This file is NOT part of GNU Emacs.
@@ -45,26 +45,27 @@
 (require 'cider-storm-stepper)
 
 (defgroup cider-storm nil
-  "Emacs Cider front-end for the FlowStorm debugger"
+  "Emacs Cider front-end for the FlowStorm debugger."
   :prefix "cider-storm"
   :group 'applications
   :link '(url-link :tag "GitHub" "https://github.com/jpmonettas/cider-storm"))
 
 (defcustom cider-storm-flow-storm-theme "dark"
 
-  "The theme to use when starting the debugger via flow-storm-start"
+  "The theme to use when starting the debugger via flow-storm-start."
 
   :type 'string
   :options '("dark" "light")
   :group 'cider-storm)
 
 (defmacro cider-storm--ensure-connected (&rest forms)
+  "Ensure Cider is running before evaluating FORMS."
   `(if (cider-connected-p)
        (progn ,@forms)
      (message "Cider should be connected first")))
 
 (defun cider-storm--clojure-storm-env-p ()
-  "Check if the repl connected process is running Clojure Storm"
+  "Check if the repl connected process is running Clojure Storm."
 
   (thread-first (cider-nrepl-send-sync-request `("op"   "eval"
                                                  "code" "((requiring-resolve 'flow-storm.utils/storm-env?))"))
@@ -83,7 +84,7 @@
 
 (defun cider-storm-storm-stop-gui ()
 
-  "Close the flow-storm debugger window and clears the debugger state"
+  "Close the flow-storm debugger window and clears the debugger state."
 
   (interactive)
   (cider-storm--ensure-connected
@@ -93,13 +94,13 @@
 
 (defun cider-storm-instrument-current-ns (arg)
 
-  "Instrument the namespace you are currently on."
+  "Instrument the namespace you are currently on, uninstrument with prefix ARG."
 
   (interactive "P")
   (if (cider-storm--clojure-storm-env-p)
-      
+
       (message "No need to instrument namespaces since you are running with Clojure Storm")
-    
+
     (let* ((prefix (eq (car arg) 4))
            (current-ns (cider-current-ns))
            (inst-fn-name (if prefix
@@ -120,9 +121,9 @@
 
   (cider-storm--ensure-connected
    (if (cider-storm--clojure-storm-env-p)
-       
+
        (message "No need to instrument the form since you are running with Clojure Storm")
-     
+
      (let* ((current-ns (cider-current-ns))
             (form (cider-last-sexp))
             (clj-cmd (format "(flow-storm.api/instrument* {} %s)" form)))
@@ -136,9 +137,9 @@
 
   (cider-storm--ensure-connected
    (if (cider-storm--clojure-storm-env-p)
-       
+
        (message "No need to instrument the form since you are running with Clojure Storm")
-     
+
      (let* ((current-ns (cider-current-ns))
             (form (cider-defun-at-point))
             (clj-cmd (format "(flow-storm.api/instrument* {} %s)" form)))
@@ -176,9 +177,9 @@
 
   (cider-storm--ensure-connected
    (if (cider-storm--clojure-storm-env-p)
-       
+
        (message "No need to instrument the form since you are running with Clojure Storm")
-     
+
      (let* ((current-ns (cider-current-ns))
             (form (cider-last-sexp))
             (clj-cmd (format "(flow-storm.api/runi {} %s)" form)))
@@ -186,9 +187,8 @@
 
 (defun cider-storm-eval-and-debug-last-form ()
 
-  "Convenience function to eval a form and immediately put the emacs stepper
-on the first recording."
-  
+  "Eval a form and immediately put the Emacs stepper on the first recording."
+
   (interactive)
 
   (cider-storm--ensure-connected
@@ -196,14 +196,14 @@ on the first recording."
           (form (cider-last-sexp)))
 
      (if (cider-storm--clojure-storm-env-p)
-         
+
          (let* ((clj-cmd (format "%s" form)))
            (cider-storm-clear-recordings)
            (cider-nrepl-send-sync-request `("op"   "eval"
                                             "code" ,clj-cmd
-                                            "ns"   ,current-ns))           
+                                            "ns"   ,current-ns))
            (cider-storm--debug-flow nil))
-       
+
        (let* ((clj-cmd (format "#rtrace %s" form)))
          (cider-interactive-eval clj-cmd nil nil `(("ns" ,current-ns)))
          (cider-storm--debug-flow 0))))))
@@ -219,20 +219,20 @@ on the first recording."
     (define-key cider-storm-map (kbd "n") #'cider-storm-instrument-current-ns)
 
     (define-key cider-storm-map (kbd "f") #'cider-storm-instrument-last-form)
-    
+
     (define-key cider-storm-map (kbd "c") #'cider-storm-instrument-current-defn)
-    
+
     (define-key cider-storm-map (kbd "e") #'cider-storm-eval-and-debug-last-form)
-    
+
     (define-key cider-storm-map (kbd "t") #'cider-storm-tap-last-result)
 
     (define-key cider-storm-map (kbd "D") #'cider-storm-show-current-var-doc)
 
     (define-key cider-storm-map (kbd "r") #'cider-storm-rtrace-last-sexp)
 
-    (define-key cider-storm-map (kbd "d") #'cider-storm-debug-current-fn)    
+    (define-key cider-storm-map (kbd "d") #'cider-storm-debug-current-fn)
 
-    (define-key cider-storm-map (kbd "j") #'cider-storm-debug-fn)    
+    (define-key cider-storm-map (kbd "j") #'cider-storm-debug-fn)
 
     (define-key cider-storm-map (kbd "l") #'cider-storm-clear-recordings)
 
