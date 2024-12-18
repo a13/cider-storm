@@ -6,7 +6,7 @@
 ;; URL: https://github.com/jpmonettas/cider-storm
 ;; Keywords: convenience, tools, debugger, clojure, cider
 ;; Version: 0.1
-;; Package-Requires: ((emacs "26") (cider "1.6.0"))
+;; Package-Requires: ((emacs "26.1") (cider "1.14.0"))
 ;; SPDX-License-Identifier: GPL-3.0-or-later
 
 ;; This file is NOT part of GNU Emacs.
@@ -155,7 +155,7 @@ so we know if we need to restore it after.")
   (thread-first (cider-nrepl-send-sync-request `("op"         "flow-storm-find-fn-call"
                                                  "flow-id"    ,flow-id
                                                  "fq-fn-symb" ,fq-fn-symb
-                                                 "from-idx"   ,from-idx                                                 
+                                                 "from-idx"   ,from-idx
                                                  "from-back"  ,(if from-back "true" "false")))
                 (nrepl-dict-get "fn-call")))
 
@@ -244,10 +244,10 @@ Returns the line number in the buffer where the form is located."
       ;; if we are changing files, remove the debugger stuff from this buffer
       ;; since we only want to have the debugger mode enable in one buffer at a time
       (cider-storm--debug-mode-quit))
-    
+
 
     (if (and form-file form-line)
-        (when-let* ((buf (save-excursion (cider--find-buffer-for-file form-file))))          
+        (when-let* ((buf (save-excursion (cider--find-buffer-for-file form-file))))
           (with-current-buffer buf
             (switch-to-buffer buf)
             (cider-storm--debug-mode-enter)
@@ -256,7 +256,7 @@ Returns the line number in the buffer where the form is located."
 
       (let* ((pprinted-form (nrepl-dict-get form "pprint"))
              (dbg-buf (cider-popup-buffer "*cider-storm-dbg*" 'select 'clojure-mode)))
-                        
+
         (with-current-buffer dbg-buf
           (let ((inhibit-read-only t))
             (cider-storm--debug-mode-enter)
@@ -342,7 +342,7 @@ sexp that is after point when this function is called.
 In addition to numbers, a coordinate can be a string.
 This string contains directions to find a key or value in a map
 or an expression in a set."
-  
+
   (condition-case-unless-debug nil
       ;; Navigate through sexps inside the sexp.
       (let ((in-syntax-quote nil))
@@ -413,7 +413,7 @@ does everything necessary to display the entry on the form."
   (let* ((form-line (cider-storm--select-form form-id))
          (entry-type (cider-storm--entry-type entry))
          (entry-idx (nrepl-dict-get entry "idx")))
-    
+
     (if-let* ((coord (nrepl-dict-get entry "coord")))
         (cider-storm--debug-move-point coord)
 
@@ -715,7 +715,7 @@ After selecting one, will start the debugger on that function."
     ("." . (lambda () (interactive) (cider-storm--pprint-current-entry)))
     ("i" . (lambda () (interactive) (cider-storm--inspect-current-entry)))
     ("t" . (lambda () (interactive) (cider-storm--tap-current-entry)))
-    ("l" . (lambda () (interactive) (cider-storm--show-current-locals)))    
+    ("l" . (lambda () (interactive) (cider-storm--show-current-locals)))
     ("D" . (lambda () (interactive) (cider-storm--define-all-bindings-for-frame)))))
 
 (provide 'cider-storm-stepper)

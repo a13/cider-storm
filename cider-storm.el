@@ -6,7 +6,7 @@
 ;; URL: https://github.com/jpmonettas/cider-storm
 ;; Keywords: convenience, tools, debugger, clojure, cider
 ;; Version: 0.1
-;; Package-Requires: ((emacs "26") (cider "1.14.0"))
+;; Package-Requires: ((emacs "26.1") (cider "1.14.0"))
 ;; SPDX-License-Identifier: GPL-3.0-or-later
 
 ;; This file is NOT part of GNU Emacs.
