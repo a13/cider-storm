@@ -6,11 +6,11 @@
 ;; URL: https://github.com/jpmonettas/cider-storm
 ;; Keywords: convenience, tools, debugger, clojure, cider
 ;; Version: 0.1
-;; SPDX-License-Identifier: GPL-3.0-or-later
 
 ;; This file is NOT part of GNU Emacs.
 
 ;;; License:
+;; SPDX-License-Identifier: GPL-3.0-or-later
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
